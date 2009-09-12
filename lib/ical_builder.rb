@@ -10,6 +10,10 @@ module Builder
       __fold(@target.to_s)
     end
 
+    def <<(str)
+      @target << str
+    end
+
     def method_missing(sym, *args, &block)
       value = args.shift
       if block
@@ -39,7 +43,7 @@ module Builder
           end
         }.join(';')
       end
-      
+
       # 4.3 Property Value Data Types
       def __value(val)
         case val
@@ -59,20 +63,21 @@ module Builder
           # 4.3.5
           val.strftime('%Y%m%dT%H%M%S' + (val.utc? ? 'Z' : ''))
         else
-          val.to_s.gsub(/\r\n/, "\n").gsub(/\n/, "\r\n  ").sub(/\r\n  \z/, "\r\n")
+          val.to_s
         end
       end
-      
+
       # 4.1 Content Lines
       def __fold(str)
-        str.inject([]) { |lines, line|
-          if line.length > 75
-            lines << line[0..74] << __fold(" " + line[75..-1])
-          else
-            lines << line
-          end
-          lines
-        }.join("\r\n")
+        str.split("\r\n").collect { |line| __fold_line(line) }.join("\r\n") + "\r\n"
+      end
+
+      def __fold_line(line)
+        if line.length > 75
+          line[0..74] + "\r\n" + __fold_line(" " + line[75..-1])
+        else
+          line
+        end
       end
   end
 end

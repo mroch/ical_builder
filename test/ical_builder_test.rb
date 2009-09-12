@@ -47,6 +47,11 @@ class IcalBuilderTest < Test::Unit::TestCase
     assert_equal "GIBBERISH:foo\r\n", @builder.to_s
   end
 
+  should "allow newlines (4.3.11)" do
+    @builder.text("Foo bar\nBaz bliffl")
+    assert_equal "TEXT:Foo bar\nBaz bliffl\r\n", @builder.to_s
+  end
+
   should "handle values with multiple parts (4.1.1)" do
     @builder.rrule({ :freq => 'YEARLY', :bymonth => 11, :byday => '1SU' })
     assert_equal "RRULE:BYDAY=1SU;BYMONTH=11;FREQ=YEARLY\r\n", @builder.to_s
@@ -84,11 +89,42 @@ class IcalBuilderTest < Test::Unit::TestCase
       @builder.to_s
   end
 
+  should "append arbitrary text" do
+    @builder.foo("bar")
+    @builder << "ARBITRARY-PROPERTY:\"Lorem ipsum dolor sit amet\"\r\n"
+    assert_equal "FOO:bar\r\nARBITRARY-PROPERTY:\"Lorem ipsum dolor sit amet\"\r\n", @builder.to_s
+  end
+
+  should "not fold lines less than 75 characters long" do
+    @builder.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+    assert_equal "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit.\r\n", @builder.to_s
+  end
+
+  should "not fold lines exactly 75 characters long" do
+    @builder.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nullam.")
+    assert_equal "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nullam.\r\n", @builder.to_s
+  end
+
+  should "not fold lines exactly 75 characters long even if they end in whitespace" do
+    @builder.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nullam ")
+    assert_equal "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nullam \r\n", @builder.to_s
+  end
+
   should "fold lines longer than 75 characters" do
     @builder.description("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget elit tellus. In hac habitasse platea dictumst. Vestibulum tincidunt velit id erat interdum id tristique diam blandit. Praesent nullam.")
     assert_equal \
       "DESCRIPTION:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eg\r\n et elit tellus. In hac habitasse platea dictumst. Vestibulum tincidunt vel\r\n it id erat interdum id tristique diam blandit. Praesent nullam.\r\n",
       @builder.to_s
+  end
+
+  should "fold lines longer than 75 characters even if only whitespace" do
+    @builder.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nullam. ")
+    assert_equal "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nullam.\r\n  \r\n", @builder.to_s
+  end
+
+  should "fold arbitrary text" do
+    @builder << "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget elit tellus. In hac habitasse platea dictumst.\r\n"
+    assert_equal "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget elit\r\n  tellus. In hac habitasse platea dictumst.\r\n", @builder.to_s
   end
 
 end
