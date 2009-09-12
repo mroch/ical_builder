@@ -33,7 +33,7 @@ module Builder
         ';' + args.collect { |arg| 
           case arg
           when Hash
-            arg.collect { |k, v| "#{__property(k)}=#{__value(v)}" }.join(';')
+            arg.collect { |k, v| "#{__property(k)}=#{__value(v)}" }.sort.join(';')
           else
             arg.to_s
           end
@@ -46,6 +46,9 @@ module Builder
         when Array
           # 4.1.1
           val.collect { |v| __value(v) }.join(',')
+        when Hash
+          # 4.1.1
+          val.collect { |k, v| "#{__property(k)}=#{__value(v)}" }.sort.join(';')
         when true, false
           # 4.3.2
           val.to_s.upcase
@@ -56,7 +59,7 @@ module Builder
           # 4.3.5
           val.strftime('%Y%m%dT%H%M%S' + (val.utc? ? 'Z' : ''))
         else
-          val.gsub(/\r\n/, "\n").gsub(/\n/, "\r\n  ").sub(/\r\n  \z/, "\r\n")
+          val.to_s.gsub(/\r\n/, "\n").gsub(/\n/, "\r\n  ").sub(/\r\n  \z/, "\r\n")
         end
       end
       

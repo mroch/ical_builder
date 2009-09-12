@@ -13,5 +13,5 @@ module Builder
   end
 end
 
-puts "HERE!"
 ActionView::Template.register_template_handler(:ical, Builder::IcalPlugin)
+ActionView::Template.exempt_from_layout(:ical)
