@@ -5,11 +5,11 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "ical_builder"
-    gem.summary = %Q{TODO}
-    gem.email = "mroch@cmu.edu"
+    gem.summary = %Q{An iCalendar generator in Ruby, modelled after Jim Weirich's Builder}
+    gem.email = "marshall@mroch.com"
     gem.homepage = "http://github.com/mroch/ical_builder"
     gem.authors = ["Marshall Roch"]
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+    gem.add_dependency 'masover-blankslate'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
