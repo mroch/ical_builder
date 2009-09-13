@@ -14,6 +14,17 @@ module Builder
       @target << str
     end
 
+    # RRULE is a special case since it needs to take a hash, but FREQ must
+    # always be first.
+    def rrule(*args)
+      if args[0].is_a?(Hash)
+        freq = __value({ :freq => args[0].delete(:freq) })
+        others = args[0].empty? ? nil : __value(args[0])
+        args[0] = [freq, others].compact.join(';')
+      end
+      method_missing(:rrule, *args)
+    end
+
     def method_missing(sym, *args, &block)
       value = args.shift
       if block

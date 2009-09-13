@@ -53,13 +53,13 @@ class IcalBuilderTest < Test::Unit::TestCase
   end
 
   should "handle values with multiple parts (4.1.1)" do
-    @builder.rrule({ :freq => 'YEARLY', :bymonth => 11, :byday => '1SU' })
-    assert_equal "RRULE:BYDAY=1SU;BYMONTH=11;FREQ=YEARLY\r\n", @builder.to_s
+    @builder.gibberish({ :foo => 'bar', :bymonth => 11, :byday => '1SU' })
+    assert_equal "GIBBERISH:BYDAY=1SU;BYMONTH=11;FOO=bar\r\n", @builder.to_s
   end
 
   should "handle values and properties with multiple values" do
-    @builder.rrule({ :freq => 'YEARLY', :bymonth => 11, :byday => '1SU' }, { :foo => 'bar', :baz => 'bliffl' })
-    assert_equal "RRULE;BAZ=bliffl;FOO=bar:BYDAY=1SU;BYMONTH=11;FREQ=YEARLY\r\n", @builder.to_s
+    @builder.gibberish({ :freq => 'YEARLY', :bymonth => 11, :byday => '1SU' }, { :foo => 'bar', :baz => 'bliffl' })
+    assert_equal "GIBBERISH;BAZ=bliffl;FOO=bar:BYDAY=1SU;BYMONTH=11;FREQ=YEARLY\r\n", @builder.to_s
   end
 
   should "format parameters without double-quotes correctly" do
@@ -125,6 +125,16 @@ class IcalBuilderTest < Test::Unit::TestCase
   should "fold arbitrary text" do
     @builder << "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget elit tellus. In hac habitasse platea dictumst.\r\n"
     assert_equal "TEXT:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget elit\r\n  tellus. In hac habitasse platea dictumst.\r\n", @builder.to_s
+  end
+
+  should "always place FREQ first in RRULE values" do
+    @builder.rrule({ :freq => 'YEARLY', :interval => 1, :byday => '1SU' })
+    assert_equal "RRULE:FREQ=YEARLY;BYDAY=1SU;INTERVAL=1\r\n", @builder.to_s
+  end
+
+  should "format RRULEs properly even with only FREQ" do
+    @builder.rrule({ :freq => 'YEARLY' })
+    assert_equal "RRULE:FREQ=YEARLY\r\n", @builder.to_s
   end
 
 end
