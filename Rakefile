@@ -9,7 +9,7 @@ begin
     gem.email = "marshall@mroch.com"
     gem.homepage = "http://github.com/mroch/ical_builder"
     gem.authors = ["Marshall Roch"]
-    gem.add_dependency 'masover-blankslate'
+    gem.add_dependency 'blankslate'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
